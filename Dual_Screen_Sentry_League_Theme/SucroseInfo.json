@@ -1,0 +1,16 @@
+{
+  "AppVersion": "26.10.5.0",
+  "Version": "1.0.0.0",
+  "Title": "Dual Screen: Sentry & League Holo-Triptych",
+  "Thumbnail": "thumbnail.jpg",
+  "Preview": "preview.gif",
+  "Description": "Dual-screen live wallpaper featuring Sentry seamless loop on Display 1 and League Holo-Triptych (Yasuo 12h Clock, Jhin Hardware Telemetry, Azir Prayer Times) on Display 2.",
+  "Author": "MazenShams",
+  "License": null,
+  "Contact": "https://mazenshams.example.com",
+  "Type": 2,
+  "Source": "index.html",
+  "Tags": ["DualScreen", "Sentry", "LeagueOfLegends", "Yasuo", "Jhin", "Azir", "Clock", "Telemetry", "Prayer"],
+  "Arguments": null,
+  "Localization": null
+}

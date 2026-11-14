@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Town Loft Overlook - Floating Holo-Triptych</title>
+
+  <!-- TOP-LEVEL HOISTED SUCROSE IPC HANDLERS IN HEAD (Never causes ReferenceError in CefSharp) -->
+  <script>
+    var isSucroseActive = false;
+    var cpuVal = 0, gpuVal = 0, ramVal = 0, netVal = 0;
+    var cpuNameStr = "Intel Core i5-14400F", gpuNameStr = "RTX 4060 Ti";
+
+    function parsePayload(raw) {
+      if (!raw) return null;
+      if (typeof raw === 'string') {
+        try { return JSON.parse(raw); } catch (e) { return null; }
+      }
+      return raw;
+    }
+
+    function SucroseProcessorData(raw) {
+      var obj = parsePayload(raw);
+      if (obj != null) {
+        isSucroseActive = true;
+        if (obj.State || obj.Now !== undefined) {
+          cpuVal = Math.round(obj.Now);
+          if (obj.Name) {
+            cpuNameStr = obj.Name.replace(/\(R\)|\(TM\)/gi, '').trim();
+            var el = document.getElementById('cpu-name');
+            if (el) el.textContent = cpuNameStr;
+          }
+          var valEl = document.getElementById('cpu-val');
+          if (valEl) valEl.textContent = cpuVal + "%";
+          var barEl = document.getElementById('cpu-bar');
+          if (barEl) barEl.style.width = Math.min(100, Math.max(0, cpuVal)) + "%";
+          var st = document.getElementById('tele-status');
+          if (st) st.textContent = "SUCROSE LIVE";
+        }
+      }
+    }
+
+    function SucroseGraphicData(raw) {
+      var obj = parsePayload(raw);
+      if (obj != null) {
+        isSucroseActive = true;
+        if (obj.State || obj.Now !== undefined) {
+          gpuVal = Math.round(obj.Now);
+          if (obj.Name) {
+            gpuNameStr = obj.Name.replace(/^NVIDIA\s+GeForce\s+/i, '').replace(/^NVIDIA\s+/i, '').trim();
+            var el = document.getElementById('gpu-name');
+            if (el) el.textContent = gpuNameStr;
+          }
+          var valEl = document.getElementById('gpu-val');
+          if (valEl) valEl.textContent = gpuVal + "%";
+          var barEl = document.getElementById('gpu-bar');
+          if (barEl) barEl.style.width = Math.min(100, Math.max(0, gpuVal)) + "%";
+        }
+      }
+    }
+
+    function SucroseMemoryData(raw) {
+      var obj = parsePayload(raw);
+      if (obj != null) {
+        isSucroseActive = true;
+        if (obj.State || obj.MemoryLoad !== undefined) {
+          ramVal = Math.round(obj.MemoryLoad);
+          var total = ((obj.MemoryAvailable || 0) + (obj.MemoryUsed || 0)).toFixed(1);
+          var used = (obj.MemoryUsed || 0).toFixed(1);
+          var el = document.getElementById('ram-name');
+          if (el) el.textContent = used + " / " + total + " GB";
+          var valEl = document.getElementById('ram-val');
+          if (valEl) valEl.textContent = ramVal + "%";
+          var barEl = document.getElementById('ram-bar');
+          if (barEl) barEl.style.width = Math.min(100, Math.max(0, ramVal)) + "%";
+        }
+      }
+    }
+
+    function SucroseNetworkData(raw) {
+      var obj = parsePayload(raw);
+      if (obj != null) {
+        isSucroseActive = true;
+        if (obj.State || obj.Download !== undefined) {
+          var downMb = ((obj.Download || 0) / (1024 * 1024)).toFixed(1);
+          var upMb = ((obj.Upload || 0) / (1024 * 1024)).toFixed(1);
+          netVal = parseFloat(downMb);
+          var el = document.getElementById('net-name');
+          if (el) el.textContent = "↓ " + downMb + " MB/s  ↑ " + upMb + " MB/s";
+          var valEl = document.getElementById('net-val');
+          if (valEl) valEl.textContent = downMb + " MB/s";
+          var barEl = document.getElementById('net-bar');
+          if (barEl) barEl.style.width = Math.min(100, Math.max(0, netVal * 10)) + "%";
+        }
+      }
+    }
+
+    function livelySystemInformation(raw) {
+      var obj = parsePayload(raw);
+      if (obj != null) {
+        isSucroseActive = true;
+        if (obj.Cpu !== undefined) {
+          cpuVal = Math.round(obj.Cpu);
+          var cEl = document.getElementById('cpu-val');
+          if (cEl) cEl.textContent = cpuVal + "%";
+        }
+        if (obj.Gpu !== undefined) {
+          gpuVal = Math.round(obj.Gpu);
+          var gEl = document.getElementById('gpu-val');
+          if (gEl) gEl.textContent = gpuVal + "%";
+        }
+        if (obj.Memory !== undefined) {
+          ramVal = Math.round(obj.Memory);
+          var rEl = document.getElementById('ram-val');
+          if (rEl) rEl.textContent = ramVal + "%";
+        }
+        var st = document.getElementById('tele-status');
+        if (st) st.textContent = "SUCROSE LIVE";
+      }
+    }
+
+    window.SucroseProcessorData = SucroseProcessorData;
+    window.SucroseGraphicData = SucroseGraphicData;
+    window.SucroseMemoryData = SucroseMemoryData;
+    window.SucroseNetworkData = SucroseNetworkData;
+    window.livelySystemInformation = livelySystemInformation;
+  </script>
+  <style>
+    @font-face {
+      font-family: 'PixeloidSans';
+      src: url('fonts/PixeloidSans.ttf') format('truetype');
+      font-weight: normal;
+    }
+    @font-face {
+      font-family: 'PixeloidSansBold';
+      src: url('fonts/PixeloidSansBold.ttf') format('truetype');
+      font-weight: bold;
+    }
+
+    :root {
+      --accent-cyan: #00f0ff;
+      --accent-purple: #c084fc;
+      --accent-emerald: #10b981;
+      --accent-gold: #fbbf24;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body, html {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #000; font-family: 'Segoe UI', system-ui, sans-serif; color: #fff;
+    }
+
+    #viewport {
+      position: relative; width: 100vw; height: 100vh;
+      overflow: hidden; background: #05070f;
+    }
+
+    /* THE TRIPTYCH PANORAMIC GLASS WINDOW */
+    .triptych-window-container {
+      position: absolute; top: 0; left: 0; width: 100%; height: 74%;
+      display: flex; gap: 6px; background: #000;
+    }
+
+    .triptych-bay {
+      flex: 1; position: relative; height: 100%;
+      overflow: hidden;
+    }
+
+    .triptych-video {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover; opacity: 0.9; filter: contrast(1.08) brightness(0.98);
+    }
+
+    /* SUBTLE GRADIENT (TOP & BOTTOM ONLY - CENTER 100% CLEAR FOR CHAMPIONS) */
+    .bay-shadow-gradient {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 65%, rgba(0,0,0,0.85) 100%);
+      pointer-events: none;
+    }
+
+    /* ARCHITECTURAL WINDOW MULLION DIVIDERS */
+    .triptych-mullion {
+      position: absolute; top: 0; bottom: 0; width: 8px;
+      background: linear-gradient(90deg, #181922 0%, #2e3346 50%, #15161e 100%);
+      box-shadow: 0 0 10px rgba(0,0,0,0.8); z-index: 10;
+    }
+    .triptych-mullion.m1 { left: 33.2%; }
+    .triptych-mullion.m2 { left: 66.5%; }
+
+    /* FLOATING HOLOGRAPHIC HUD OVERLAYS */
+    .floating-hud {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      padding: 24px 28px; display: flex; flex-direction: column;
+      justify-content: space-between; z-index: 5;
+    }
+
+    .hud-top-row {
+      display: flex; justify-content: space-between; align-items: center; width: 100%;
+    }
+
+    /* HUD TOP PILL */
+    .hud-top-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px; padding: 4px 12px; font-size: 0.72rem;
+      font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+
+    .hud-top-pill .dot { width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+
+    .hud-tele-status {
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em;
+      color: #c084fc; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px);
+      border: 1px solid rgba(192, 132, 252, 0.35); border-radius: 20px;
+      padding: 4px 10px; text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(192, 132, 252, 0.2);
+    }
+
+    /* ====================================================================
+       PANEL 1: FLOATING YASUO CLOCK
+       ==================================================================== */
+    .bay-yasuo .hud-top-pill { color: var(--accent-cyan); border-color: rgba(0, 240, 255, 0.4); }
+    .bay-yasuo .dot { background: var(--accent-cyan); }
+
+    .floating-clock-center {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      flex: 1; text-align: center;
+    }
+
+    .floating-time-big {
+      font-family: 'PixeloidSansBold', monospace;
+      font-size: clamp(2.5rem, 4.2vw, 3.8rem); letter-spacing: 2px; color: #fff;
+      text-shadow: 0 0 25px rgba(0, 240, 255, 0.8), 0 0 50px rgba(0, 0, 0, 0.9);
+      display: flex; align-items: baseline; justify-content: center; gap: 8px;
+    }
+
+    .floating-time-big .colon { animation: blink 1s infinite; color: var(--accent-cyan); }
+    .floating-ampm { font-size: clamp(1rem, 1.4vw, 1.3rem); color: var(--accent-cyan); font-weight: bold; }
+    .floating-day { font-family: 'PixeloidSans', monospace; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 3.5px; color: #7dd3fc; margin-bottom: 4px; text-shadow: 0 0 15px rgba(0,0,0,0.9); }
+    .floating-date { font-family: 'PixeloidSans', monospace; font-size: 0.9rem; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.85); margin-bottom: 12px; }
+    .floating-hijri {
+      background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 8px;
+      padding: 6px 14px; font-size: 0.85rem; color: #bae6fd;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+
+    /* ====================================================================
+       PANEL 2: FLOATING JHIN TELEMETRY (JHIN FULLY VISIBLE, NO GRAPHS!)
+       ==================================================================== */
+    .bay-jhin .hud-top-pill { color: var(--accent-purple); border-color: rgba(192, 132, 252, 0.4); }
+    .bay-jhin .dot { background: var(--accent-purple); }
+
+    /* JHIN CENTER IS COMPLETELY OPEN & UNOBSTRUCTED */
+    .jhin-clear-stage {
+      flex: 1; pointer-events: none;
+    }
+
+    /* 4-CAPSULE DOCK AT BOTTOM (MATCHING AZIR'S PRAYER RIBBON HEIGHT) */
+    .floating-tele-ribbon {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      margin-top: auto;
+    }
+
+    .f-tele-slot {
+      background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(10px);
+      border: 1px solid rgba(192, 132, 252, 0.28); border-radius: 8px;
+      padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      position: relative; overflow: hidden;
+    }
+
+    .f-tele-slot:hover {
+      border-color: rgba(192, 132, 252, 0.6);
+      box-shadow: 0 0 15px rgba(192, 132, 252, 0.3);
+    }
+
+    .ft-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .ft-lbl {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.65); text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ft-val {
+      font-size: 1.1rem; font-weight: 800; font-family: 'PixeloidSansBold', monospace;
+      color: #fff; line-height: 1.1; white-space: nowrap;
+    }
+
+    #cpu-val { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.6); }
+    #gpu-val { color: #c084fc; text-shadow: 0 0 10px rgba(192, 132, 252, 0.6); }
+    #ram-val { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.6); }
+    #net-val { color: #10b981; font-size: 0.95rem; text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
+
+    .ft-name {
+      font-size: 0.62rem; color: rgba(255, 255, 255, 0.75);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-top: 3px; font-weight: 500;
+    }
+
+    /* SLIM NEON PROGRESS BAR UNDER EACH METRIC */
+    .ft-bar {
+      width: 100%; height: 3px; background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px; overflow: hidden; margin-top: 6px;
+    }
+
+    .ft-bar-fill {
+      height: 100%; width: 0%; border-radius: 2px;
+      transition: width 0.5s ease-out;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* ====================================================================
+       PANEL 3: FLOATING AZIR PRAYER (ALEXANDRIA EGYPT)
+       ==================================================================== */
+    .bay-azir .hud-top-pill { color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.4); }
+    .bay-azir .dot { background: var(--accent-emerald); }
+
+    .floating-prayer-wrap { display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
+    
+    .floating-prayer-hero {
+      background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(10px);
+      border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px;
+      padding: 8px 14px; display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .floating-prayer-hero .names { font-size: 1.25rem; font-weight: 800; color: #fff; display: flex; align-items: baseline; gap: 8px; }
+    .floating-prayer-hero .names .ar { color: var(--accent-gold); font-size: 1.2rem; }
+    .floating-prayer-hero .sched { font-size: 0.82rem; color: rgba(255, 255, 255, 0.85); }
+    .floating-prayer-hero .sched strong { color: #fff; }
+
+    .floating-countdown-center { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 8px 0; }
+    
+    .floating-giant-time {
+      font-family: 'PixeloidSansBold', monospace; font-size: clamp(2.5rem, 4.2vw, 3.8rem);
+      letter-spacing: 2px; color: #fff; text-shadow: 0 0 25px rgba(16, 185, 129, 0.85), 0 0 50px rgba(0,0,0,0.9);
+      display: flex; align-items: center; justify-content: center; line-height: 1.1;
+    }
+
+    .floating-giant-time .colon { animation: blink 1s infinite; color: var(--accent-emerald); }
+    
+    .floating-unit-tags {
+      display: flex; justify-content: center; gap: clamp(2.4rem, 3.8vw, 3.6rem);
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.65); margin-top: 3px;
+    }
+
+    .floating-slots-ribbon { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-top: auto; }
+    
+    .f-slot {
+      background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; padding: 6px 2px; text-align: center;
+      transition: all 0.3s ease;
+    }
+    .f-slot.active {
+      background: rgba(16, 185, 129, 0.3); border-color: #10b981;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+    }
+    .f-slot .lbl { font-size: 0.62rem; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; }
+    .f-slot.active .lbl { color: #34d399; font-weight: bold; }
+    .f-slot .val { font-size: 0.72rem; font-weight: 700; color: #fff; margin-top: 2px; white-space: nowrap; }
+
+    /* ====================================================================
+       FOREGROUND: WARM LIVING ROOM DESK & WINDOWSILL
+       ==================================================================== */
+    .loft-foreground { position: absolute; bottom: 0; left: 0; width: 100%; height: 28%; z-index: 10; pointer-events: none; }
+    .desk-surface {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 95px;
+      background: linear-gradient(180deg, #382a24 0%, #1f1714 40%, #0f0a08 100%);
+      box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.9); border-top: 4px solid #4f3b32; z-index: 11;
+    }
+
+    .warm-lamp { position: absolute; bottom: 85px; left: 4%; width: 60px; height: 120px; z-index: 12; }
+    .lamp-glow {
+      position: absolute; bottom: 70px; left: -80px; width: 280px; height: 280px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.28) 0%, rgba(245, 158, 11, 0.1) 45%, transparent 70%);
+      filter: blur(25px); pointer-events: none; z-index: 11;
+    }
+    .room-plant { position: absolute; bottom: 75px; right: 5%; width: 90px; height: 140px; z-index: 12; opacity: 0.9; }
+    .coffee-mug { position: absolute; bottom: 82px; left: 20%; width: 28px; height: 32px; background: #e2e8f0; border-radius: 2px 2px 8px 8px; z-index: 12; }
+    .coffee-handle { position: absolute; right: -8px; top: 6px; width: 10px; height: 18px; border: 3px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; }
+    .steam {
+      position: absolute; top: -24px; left: 6px; width: 14px; height: 24px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, transparent 70%); filter: blur(4px);
+      animation: riseSteam 3s infinite ease-out;
+    }
+
+    @keyframes riseSteam {
+      0% { transform: translateY(6px) scaleX(0.7); opacity: 0; }
+      50% { opacity: 0.6; }
+      100% { transform: translateY(-22px) scaleX(1.4); opacity: 0; }
+    }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.2; } }
+  </style>
+</head>
+<body>
+  <div id="viewport">
+    <!-- THE TRIPTYCH BAY WINDOW -->
+    <div class="triptych-window-container">
+
+      <!-- BAY 1: YASUO (DAY: TRUTH DRAGON / NIGHT: DREAM DRAGON) -->
+      <div class="triptych-bay bay-yasuo">
+        <video id="video-yasuo" class="triptych-video" autoplay loop muted playsinline preload="auto"></video>
+        <div class="bay-shadow-gradient"></div>
+        <div class="floating-hud">
+          <div class="hud-top-row">
+            <div class="hud-top-pill">
+              <span class="dot"></span>
+              <span id="yasuo-pill">YASUO // DREAM DRAGON</span>
+            </div>
+          </div>
+          <div class="floating-clock-center">
+            <div class="floating-time-big" id="clock-time">--<span class="colon">:</span>--<span class="colon">:</span>-- <span class="floating-ampm">--</span></div>
+            <div class="floating-day" id="clock-day">LOADING...</div>
+            <div class="floating-date" id="clock-date">-- -- ----</div>
+            <div class="floating-hijri">
+              <span>🌙</span>
+              <span id="hijri-text">Loading Hijri Date...</span>
+            </div>
+          </div>
+          <div></div>
+        </div>
+      </div>
+
+      <!-- BAY 2: JHIN TELEMETRY (JHIN 100% VISIBLE, NO GRAPHS, DOCK AT BOTTOM) -->
+      <div class="triptych-bay bay-jhin">
+        <video id="video-jhin" class="triptych-video" autoplay loop muted playsinline preload="auto">
+          <source src="videos/DS_Jhin_Seamless_Loop.webm" type="video/webm">
+          <source src="videos/DS_Jhin_Seamless_Loop.mp4" type="video/mp4">
+        </video>
+        <div class="bay-shadow-gradient"></div>
+        <div class="floating-hud">
+          <div class="hud-top-row">
+            <div class="hud-top-pill">
+              <span class="dot"></span>
+              <span>JHIN // DARK COSMIC</span>
+            </div>
+            <div class="hud-tele-status" id="tele-status">STANDBY</div>
+          </div>
+
+          <!-- Jhin's Center Stage (Face, Mask, Cape 100% Uncovered!) -->
+          <div class="jhin-clear-stage"></div>
+
+          <!-- Sleek 4-Capsule Hardware Ribbon (Matching Azir's Prayer Ribbon) -->
+          <div class="floating-tele-ribbon">
+            <div class="f-tele-slot">
+              <div class="ft-head">
+                <span class="ft-lbl">CPU LOAD</span>
+                <span class="ft-val" id="cpu-val">31%</span>
+              </div>
+              <div class="ft-name" id="cpu-name">Intel Core i5-14400F</div>
+              <div class="ft-bar"><div class="ft-bar-fill" id="cpu-bar" style="width: 31%; background: #38bdf8;"></div></div>
+            </div>
+
+            <div class="f-tele-slot">
+              <div class="ft-head">
+                <span class="ft-lbl">GPU LOAD</span>
+                <span class="ft-val" id="gpu-val">14%</span>
+              </div>
+              <div class="ft-name" id="gpu-name">RTX 4060 Ti</div>
+              <div class="ft-bar"><div class="ft-bar-fill" id="gpu-bar" style="width: 14%; background: #c084fc;"></div></div>
+            </div>
+
+            <div class="f-tele-slot">
+              <div class="ft-head">
+                <span class="ft-lbl">RAM USAGE</span>
+                <span class="ft-val" id="ram-val">47%</span>
+              </div>
+              <div class="ft-name" id="ram-name">14.4 / 31.8 GB</div>
+              <div class="ft-bar"><div class="ft-bar-fill" id="ram-bar" style="width: 47%; background: #fbbf24;"></div></div>
+            </div>
+
+            <div class="f-tele-slot">
+              <div class="ft-head">
+                <span class="ft-lbl">NET</span>
+                <span class="ft-val" id="net-val">1.2 MB/s</span>
+              </div>
+              <div class="ft-name" id="net-name">Ethernet</div>
+              <div class="ft-bar"><div class="ft-bar-fill" id="net-bar" style="width: 20%; background: #10b981;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BAY 3: AZIR PRAYER (ALEXANDRIA EGYPT, 12-HOUR FORMAT, ISHA) -->
+      <div class="triptych-bay bay-azir">
+        <video id="video-azir" class="triptych-video" autoplay loop muted playsinline preload="auto">
+          <source src="videos/WK_Azir_Seamless_Loop.webm" type="video/webm">
+          <source src="videos/WK_Azir_Seamless_Loop.mp4" type="video/mp4">
+        </video>
+        <div class="bay-shadow-gradient"></div>
+        <div class="floating-hud">
+          <div class="hud-top-row">
+            <div class="hud-top-pill">
+              <span class="dot"></span>
+              <span>AZIR // SHURIMA</span>
+            </div>
+          </div>
+
+          <div class="floating-prayer-wrap">
+            <div class="floating-prayer-hero">
+              <div class="names">
+                <span id="prayer-next-en">Isha</span>
+                <span class="ar" id="prayer-next-ar">العشاء</span>
+              </div>
+              <div class="sched">Adhan at <strong id="prayer-next-time">06:25 PM</strong></div>
+            </div>
+
+            <div class="floating-countdown-center">
+              <div class="floating-giant-time" id="prayer-giant-time">
+                <span id="cd-h">00</span><span class="colon">:</span><span id="cd-m">00</span><span class="colon">:</span><span id="cd-s">00</span>
+              </div>
+              <div class="floating-unit-tags">
+                <span>Hours</span><span>Minutes</span><span>Seconds</span>
+              </div>
+            </div>
+
+            <div class="floating-slots-ribbon">
+              <div class="f-slot" id="p-Fajr"><div class="lbl">Fajr</div><div class="val" id="pt-Fajr">04:58 AM</div></div>
+              <div class="f-slot" id="p-Sunrise"><div class="lbl">Sunrise</div><div class="val" id="pt-Sunrise">06:27 AM</div></div>
+              <div class="f-slot" id="p-Dhuhr"><div class="lbl">Dhuhr</div><div class="val" id="pt-Dhuhr">11:46 AM</div></div>
+              <div class="f-slot" id="p-Asr"><div class="lbl">Asr</div><div class="val" id="pt-Asr">02:45 PM</div></div>
+              <div class="f-slot" id="p-Maghrib"><div class="lbl">Maghrib</div><div class="val" id="pt-Maghrib">05:05 PM</div></div>
+              <div class="f-slot active" id="p-Isha"><div class="lbl">Isha</div><div class="val" id="pt-Isha">06:25 PM</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mullions -->
+      <div class="triptych-mullion m1"></div>
+      <div class="triptych-mullion m2"></div>
+    </div>
+
+    <!-- LIVING ROOM FOREGROUND -->
+    <div class="loft-foreground">
+      <div class="desk-surface"></div>
+      <div class="lamp-glow"></div>
+      <svg class="warm-lamp" viewBox="0 0 60 120">
+        <ellipse cx="30" cy="115" rx="22" ry="4" fill="#181311" stroke="#33241d" stroke-width="2"/>
+        <path d="M30,115 L30,40" stroke="#b45309" stroke-width="4" stroke-linecap="round"/>
+        <polygon points="10,45 50,45 42,20 18,20" fill="#f59e0b"/>
+        <ellipse cx="30" cy="45" rx="20" ry="5" fill="#fef08a"/>
+      </svg>
+      <div class="coffee-mug"><div class="coffee-handle"></div><div class="steam"></div></div>
+      <svg class="room-plant" viewBox="0 0 90 140">
+        <polygon points="25,100 65,100 58,135 32,135" fill="#c2410c"/>
+        <path d="M45,100 Q30,60 15,40 Q35,45 45,70 Q55,30 75,20 Q65,50 45,100 Z" fill="#047857"/>
+        <path d="M45,100 Q40,40 50,10 Q60,35 45,70 Z" fill="#059669"/>
+        <path d="M45,100 Q20,70 10,80 Q25,85 45,95 Z" fill="#10b981"/>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    /* ====================================================================
+       1. YASUO DAY / NIGHT DYNAMIC CYCLE
+       ==================================================================== */
+    const vYasuo = document.getElementById('video-yasuo');
+    const yasuoPill = document.getElementById('yasuo-pill');
+    function checkYasuoCycle() {
+      const h = new Date().getHours();
+      const isDay = (h >= 6 && h < 18);
+      const name = isDay ? "TD_Yasuo_Seamless_Loop" : "DD_Yasuo_Seamless_Loop";
+      if (!vYasuo.getAttribute('data-current') || vYasuo.getAttribute('data-current') !== name) {
+        vYasuo.setAttribute('data-current', name);
+        vYasuo.innerHTML = `
+          <source src="videos/${name}.webm" type="video/webm">
+          <source src="videos/${name}.mp4" type="video/mp4">
+        `;
+        vYasuo.load();
+        vYasuo.play().catch(()=>{});
+        yasuoPill.textContent = isDay ? "YASUO // TRUTH DRAGON" : "YASUO // DREAM DRAGON";
+      }
+    }
+    checkYasuoCycle();
+    setInterval(checkYasuoCycle, 30000);
+
+    function enforceAllVideosPlay() {
+      document.querySelectorAll('video').forEach(vid => {
+        vid.muted = true;
+        vid.play().catch(()=>{});
+      });
+    }
+    window.addEventListener('DOMContentLoaded', enforceAllVideosPlay);
+    window.addEventListener('load', enforceAllVideosPlay);
+
+    /* ====================================================================
+       2. 12-HOUR CLOCK WITH AM/PM & HIJRI CALENDAR
+       ==================================================================== */
+    const cTime = document.getElementById('clock-time');
+    const cDay = document.getElementById('clock-day');
+    const cDate = document.getElementById('clock-date');
+    const hText = document.getElementById('hijri-text');
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours(), m = String(now.getMinutes()).padStart(2, '0'), s = String(now.getSeconds()).padStart(2, '0');
+      let ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      cTime.innerHTML = `${String(h).padStart(2, '0')}<span class="colon">:</span>${m}<span class="colon">:</span>${s} <span class="floating-ampm">${ampm}</span>`;
+      cDay.textContent = now.toLocaleDateString('en-US', { weekday: 'long' });
+      cDate.textContent = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    function calcHijri() {
+      try {
+        const intl = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+        hText.textContent = `${intl} هـ`;
+      } catch (e) { hText.textContent = "05 Jumada al-Awwal 1448 H"; }
+    }
+    calcHijri();
+
+    // Hook parent check when loaded inside dual-screen iframe
+    window.addEventListener('DOMContentLoaded', function() {
+      if (window.parent && window.parent !== window) {
+        if (window.parent.lastProc) SucroseProcessorData(window.parent.lastProc);
+        if (window.parent.lastGpu) SucroseGraphicData(window.parent.lastGpu);
+        if (window.parent.lastMem) SucroseMemoryData(window.parent.lastMem);
+        if (window.parent.lastNet) SucroseNetworkData(window.parent.lastNet);
+      }
+    });
+
+    // Fallback updater ONLY if Sucrose is completely inactive (standalone preview)
+    function checkStandbySimulation() {
+      if (!isSucroseActive) {
+        // Keep realistic idle values matching i5-14400F & RTX 4060 Ti
+        document.getElementById('tele-status').textContent = "STANDBY";
+      }
+    }
+    setInterval(checkStandbySimulation, 2000);
+
+    /* ====================================================================
+       4. ALEXANDRIA PRAYER ENGINE (12-HOUR FORMAT, ISHA, LIVE COUNTDOWN)
+       ==================================================================== */
+    let todayPrayers = {
+      Fajr: "04:58",
+      Sunrise: "06:27",
+      Dhuhr: "11:46",
+      Asr: "14:45",
+      Maghrib: "17:05",
+      Isha: "18:25"
+    };
+
+    const prayerNamesAr = {
+      Fajr: "الفجر",
+      Sunrise: "الشروق",
+      Dhuhr: "الظهر",
+      Asr: "العصر",
+      Maghrib: "المغرب",
+      Isha: "العشاء"
+    };
+
+    function to12H(time24) {
+      if (!time24) return "--:--";
+      const [hStr, mStr] = time24.split(":");
+      let h = parseInt(hStr, 10);
+      let ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12 || 12;
+      return `${String(h).padStart(2, '0')}:${mStr} ${ampm}`;
+    }
+
+    async function fetchAladhanAPI() {
+      try {
+        const res = await fetch('https://api.aladhan.com/v1/timings?latitude=31.2001&longitude=29.9187&method=5');
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.data && json.data.timings) {
+            for (let k in todayPrayers) {
+              if (json.data.timings[k]) {
+                todayPrayers[k] = json.data.timings[k].split(' ')[0];
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.log("Using Alexandria Astronomical fallback timings");
+      }
+      renderPrayerGrid();
+    }
+    fetchAladhanAPI();
+
+    function renderPrayerGrid() {
+      for (let k in todayPrayers) {
+        const el = document.getElementById(`pt-${k}`);
+        if (el) el.textContent = to12H(todayPrayers[k]);
+      }
+    }
+    renderPrayerGrid();
+
+    function updatePrayerCountdown() {
+      const now = new Date();
+      const prayerKeys = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+      let nextKey = null;
+      let nextDate = null;
+
+      for (let k of prayerKeys) {
+        const [ph, pm] = todayPrayers[k].split(':').map(Number);
+        const pDate = new Date(now);
+        pDate.setHours(ph, pm, 0, 0);
+
+        if (pDate > now) {
+          nextKey = k;
+          nextDate = pDate;
+          break;
+        }
+      }
+
+      if (!nextKey) {
+        nextKey = "Fajr";
+        const [ph, pm] = todayPrayers["Fajr"].split(':').map(Number);
+        nextDate = new Date(now);
+        nextDate.setDate(now.getDate() + 1);
+        nextDate.setHours(ph, pm, 0, 0);
+      }
+
+      prayerKeys.forEach(k => {
+        const item = document.getElementById(`p-${k}`);
+        if (item) {
+          if (k === nextKey) item.classList.add('active');
+          else item.classList.remove('active');
+        }
+      });
+
+      const nextEn = document.getElementById('prayer-next-en');
+      const nextAr = document.getElementById('prayer-next-ar');
+      const nextTime = document.getElementById('prayer-next-time');
+
+      if (nextEn) nextEn.textContent = nextKey;
+      if (nextAr) nextAr.textContent = prayerNamesAr[nextKey] || "";
+      if (nextTime) nextTime.textContent = to12H(todayPrayers[nextKey]);
+
+      let diff = Math.floor((nextDate - now) / 1000);
+      if (diff < 0) diff = 0;
+
+      const hrs = Math.floor(diff / 3600);
+      const mins = Math.floor((diff % 3600) / 60);
+      const secs = diff % 60;
+
+      const cdH = document.getElementById('cd-h');
+      const cdM = document.getElementById('cd-m');
+      const cdS = document.getElementById('cd-s');
+
+      if (cdH) cdH.textContent = String(hrs).padStart(2, '0');
+      if (cdM) cdM.textContent = String(mins).padStart(2, '0');
+      if (cdS) cdS.textContent = String(secs).padStart(2, '0');
+    }
+    setInterval(updatePrayerCountdown, 1000);
+    updatePrayerCountdown();
+  </script>
+</body>
+</html>

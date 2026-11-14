@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dual Screen: Sentry & League Holo-Triptych</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+    .dual-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+    }
+    .screen-pane {
+      width: 50vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      overflow: hidden;
+    }
+  </style>
+
+  <!-- TOP-LEVEL SUCROSE HOOKS IN HEAD (CefSharp calls these directly) -->
+  <script>
+    var lastProc = null, lastGpu = null, lastMem = null, lastNet = null;
+
+    function getLeague() {
+      var fr = document.getElementById('league-frame');
+      return (fr && fr.contentWindow) ? fr.contentWindow : null;
+    }
+
+    function SucroseProcessorData(data) {
+      lastProc = data;
+      var lw = getLeague();
+      if (lw && lw.SucroseProcessorData) lw.SucroseProcessorData(data);
+    }
+
+    function SucroseGraphicData(data) {
+      lastGpu = data;
+      var lw = getLeague();
+      if (lw && lw.SucroseGraphicData) lw.SucroseGraphicData(data);
+    }
+
+    function SucroseMemoryData(data) {
+      lastMem = data;
+      var lw = getLeague();
+      if (lw && lw.SucroseMemoryData) lw.SucroseMemoryData(data);
+    }
+
+    function SucroseNetworkData(data) {
+      lastNet = data;
+      var lw = getLeague();
+      if (lw && lw.SucroseNetworkData) lw.SucroseNetworkData(data);
+    }
+
+    function livelySystemInformation(data) {
+      var lw = getLeague();
+      if (lw && lw.livelySystemInformation) lw.livelySystemInformation(data);
+    }
+
+    function SucrosePropertyListener(name, val) {
+      var lw = getLeague();
+      if (lw && lw.SucrosePropertyListener) lw.SucrosePropertyListener(name, val);
+    }
+
+    function onLeagueReady() {
+      var lw = getLeague();
+      if (!lw) return;
+      if (lastProc && lw.SucroseProcessorData) lw.SucroseProcessorData(lastProc);
+      if (lastGpu && lw.SucroseGraphicData) lw.SucroseGraphicData(lastGpu);
+      if (lastMem && lw.SucroseMemoryData) lw.SucroseMemoryData(lastMem);
+      if (lastNet && lw.SucroseNetworkData) lw.SucroseNetworkData(lastNet);
+    }
+
+    window.SucroseProcessorData = SucroseProcessorData;
+    window.SucroseGraphicData = SucroseGraphicData;
+    window.SucroseMemoryData = SucroseMemoryData;
+    window.SucroseNetworkData = SucroseNetworkData;
+    window.livelySystemInformation = livelySystemInformation;
+    window.SucrosePropertyListener = SucrosePropertyListener;
+  </script>
+</head>
+<body>
+  <div class="dual-container">
+    <!-- Display 1 (Left Screen): Sentry Animated Seamless Video Loop -->
+    <div class="screen-pane" id="screen-left">
+      <video autoplay loop muted playsinline preload="auto">
+        <source src="sentry.webm" type="video/webm">
+        <source src="sentry.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Display 2 (Right Screen): League Holo-Triptych (Yasuo Clock, Jhin Hardware, Azir Prayer) -->
+    <div class="screen-pane" id="screen-right">
+      <iframe id="league-frame" src="league/index.html" allow="autoplay" onload="onLeagueReady()"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Ensure Sentry video plays reliably
+    const v = document.querySelector('video');
+    function startVideo() {
+      if (v) {
+        v.muted = true;
+        v.play().catch(e => console.warn('Video play error:', e));
+      }
+    }
+    window.addEventListener('DOMContentLoaded', startVideo);
+    window.addEventListener('load', startVideo);
+  </script>
+</body>
+</html>
