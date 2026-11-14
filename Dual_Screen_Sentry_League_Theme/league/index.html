@@ -231,9 +231,9 @@
 
     .floating-time-big {
       font-family: 'PixeloidSansBold', monospace;
-      font-size: clamp(2.5rem, 4.2vw, 3.8rem); letter-spacing: 2px; color: #fff;
+      font-size: clamp(2.8rem, 4.8vw, 4.2rem); letter-spacing: 3px; color: #fff;
       text-shadow: 0 0 25px rgba(0, 240, 255, 0.8), 0 0 50px rgba(0, 0, 0, 0.9);
-      display: flex; align-items: baseline; justify-content: center; gap: 8px;
+      display: flex; align-items: baseline; justify-content: center; gap: 10px;
     }
 
     .floating-time-big .colon { animation: blink 1s infinite; color: var(--accent-cyan); }
@@ -416,7 +416,7 @@
             </div>
           </div>
           <div class="floating-clock-center">
-            <div class="floating-time-big" id="clock-time">--<span class="colon">:</span>--<span class="colon">:</span>-- <span class="floating-ampm">--</span></div>
+            <div class="floating-time-big" id="clock-time">--<span class="colon">:</span>-- <span class="floating-ampm">--</span></div>
             <div class="floating-day" id="clock-day">LOADING...</div>
             <div class="floating-date" id="clock-date">-- -- ----</div>
             <div class="floating-hijri">
@@ -600,10 +600,10 @@
     const hText = document.getElementById('hijri-text');
     function updateClock() {
       const now = new Date();
-      let h = now.getHours(), m = String(now.getMinutes()).padStart(2, '0'), s = String(now.getSeconds()).padStart(2, '0');
+      let h = now.getHours(), m = String(now.getMinutes()).padStart(2, '0');
       let ampm = h >= 12 ? 'PM' : 'AM';
       h = h % 12 || 12;
-      cTime.innerHTML = `${String(h).padStart(2, '0')}<span class="colon">:</span>${m}<span class="colon">:</span>${s} <span class="floating-ampm">${ampm}</span>`;
+      cTime.innerHTML = `${String(h).padStart(2, '0')}<span class="colon">:</span>${m} <span class="floating-ampm">${ampm}</span>`;
       cDay.textContent = now.toLocaleDateString('en-US', { weekday: 'long' });
       cDate.textContent = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     }
