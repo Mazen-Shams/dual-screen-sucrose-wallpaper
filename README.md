@@ -1,12 +1,12 @@
-# Dual-Screen Live Wallpaper: Sentry & League Holo-Triptych
+# Dual-Screen Live Wallpaper: Iron Man & League Holo-Triptych
 
 [![Engine](https://img.shields.io/badge/Engine-Sucrose%20Wallpaper%20Engine-blue.svg)](https://github.com/cinitix/sucrose)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D6.svg)](https://microsoft.com/windows)
 [![Resolution](https://img.shields.io/badge/Resolution-3840%C3%971080%20(Dual%20Screen)-purple.svg)](#)
-[![Video Codec](https://img.shields.io/badge/Video-WebM%20VP9%20(Hardware%20Accelerated)-brightgreen.svg)](#)
+[![Video Codec](https://img.shields.io/badge/Video-60%20FPS%20WebM%20VP9%20(Hardware%20Accelerated)-brightgreen.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
 
-An atmospheric, high-performance dual-screen live wallpaper designed for **[Sucrose Wallpaper Engine](https://github.com/cinitix/sucrose)** (Windows 10/11). Spans seamlessly across two monitors (3840×1080) combining a vibrant animated Sentry display on the left with an interactive, real-time League of Legends cyberpunk holo-triptych on the right.
+An atmospheric, high-performance dual-screen live wallpaper designed for **[Sucrose Wallpaper Engine](https://github.com/cinitix/sucrose)** (Windows 10/11). Spans seamlessly across two monitors (3840×1080) combining an ultra-smooth 60 FPS slow-motion Iron Man cosmic shield loop on the left with an interactive, real-time League of Legends cyberpunk holo-triptych on the right.
 
 ---
 
@@ -18,9 +18,9 @@ An atmospheric, high-performance dual-screen live wallpaper designed for **[Sucr
 
 ## ✨ Features
 
-### 🖥️ Display 1 (Left Monitor — 1920×1080): Sentry Animated Loop
-- **Golden Hour Atmospheric Sentry**: Fluid, seamless cinematic loop of Sentry with dynamic wind and solar lighting effects.
-- **Hardware-Accelerated VP9 WebM**: Optimized for high framerates with zero dropped frames and ultra-low CPU/GPU overhead.
+### 🖥️ Display 1 (Left Monitor — 1920×1080): Iron Man 60 FPS Shield Loop
+- **Cinematic 60 FPS Slow-Motion**: Sub-pixel optical flow interpolated loop of Iron Man deploying nanotech shields against cosmic power beam energy, featuring fluid turnaround easing and zero stutter.
+- **Hardware-Accelerated VP9 WebM**: High-framerate 60 FPS smooth playback optimized for ultra-low GPU/CPU overhead.
 
 ---
 
@@ -84,7 +84,7 @@ Divided into three panoramic floor-to-ceiling bay windows overlooking the city, 
 
 ## ⚙️ Multi-Monitor Setup (Dual Displays)
 
-To have Sentry appear on your Left monitor and the League Triptych appear on your Right monitor:
+To have Iron Man appear on your Left monitor and the League Triptych appear on your Right monitor:
 1. Open **Sucrose Wallpaper Engine**.
 2. Go to **Settings** (Gear icon) -> **Display / Screen Layout**.
 3. Under **Wallpaper Placement**, select **Span** (or select your multi-monitor group).
@@ -113,8 +113,8 @@ By default, prayer times are calculated for **Alexandria, Egypt**. To change to 
 │   └── preview.png                           # Dual-screen full 3840x1080 preview
 ├── Dual_Screen_Sentry_League_Theme/          # Core theme directory
 │   ├── index.html                            # Dual-screen wrapper & IPC forwarder
-│   ├── sentry.webm                           # Sentry VP9 seamless loop (Display 1)
-│   ├── sentry.mp4                            # Sentry fallback
+│   ├── main.webm                             # Iron Man 60 FPS VP9 seamless loop (Display 1)
+│   ├── main.mp4                              # Iron Man 60 FPS fallback
 │   ├── SucroseCompatible.json                # Sucrose telemetry hook definitions
 │   ├── SucroseInfo.json                      # Wallpaper metadata & authorship
 │   ├── SucroseProperties.json                # Sucrose property bindings
@@ -139,5 +139,5 @@ By default, prayer times are calculated for **Alexandria, Egypt**. To change to 
 - **Theme Development**: Created by [Mazen Shams](https://github.com/MazenShams).
 - **Engine**: Powered by [Sucrose Wallpaper Engine](https://github.com/cinitix/sucrose).
 - **Champions**: League of Legends assets © [Riot Games](https://www.riotgames.com/).
-- **Sentry**: Character © [Marvel](https://www.marvel.com/).
+- **Iron Man**: Character © [Marvel](https://www.marvel.com/).
 - **License**: Released under the [MIT License](LICENSE).
